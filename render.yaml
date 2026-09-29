@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: sih-ps2-agromet
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: AGROMET_DB_PATH
+        value: "/app/data/agromet.sqlite3"
+      - key: AGROMET_PANCHAYATS_FILE
+        value: "/app/config/panchayats.mock.json"
+      - key: AGROMET_MODEL_ARTIFACT
+        value: "/app/agromet/models/m1-telangana-mock-v1/model_bundle.joblib"
+      - key: AGROMET_SESSION_SECRET
+        generateValue: true
+      - key: AGROMET_BOOTSTRAP_ADMIN_EMAIL
+        value: "admin@example.com"
+      - key: AGROMET_BOOTSTRAP_ADMIN_PASSWORD
+        generateValue: true
