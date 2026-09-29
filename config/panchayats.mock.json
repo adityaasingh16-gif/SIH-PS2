@@ -1,0 +1,60 @@
+{
+  "panchayats": [
+    {
+      "panchayat_id": "201001",
+      "panchayat_name": "Chevella-A",
+      "block_id": "BLK_RRE_01",
+      "latitude": 17.308,
+      "longitude": 78.134,
+      "elevation_m": 530.0,
+      "slope_deg": 2.1,
+      "aspect_deg": 140.0,
+      "distance_to_water_m": 1200.0,
+      "coarse_latitude": 17.385,
+      "coarse_longitude": 78.4867,
+      "coarse_elevation_m": 490.0
+    },
+    {
+      "panchayat_id": "201002",
+      "panchayat_name": "Chevella-B",
+      "block_id": "BLK_RRE_01",
+      "latitude": 17.315,
+      "longitude": 78.142,
+      "elevation_m": 565.0,
+      "slope_deg": 4.8,
+      "aspect_deg": 210.0,
+      "distance_to_water_m": 850.0,
+      "coarse_latitude": 17.385,
+      "coarse_longitude": 78.4867,
+      "coarse_elevation_m": 490.0
+    },
+    {
+      "panchayat_id": "201003",
+      "panchayat_name": "Kowkuntla",
+      "block_id": "BLK_RRE_01",
+      "latitude": 17.295,
+      "longitude": 78.11,
+      "elevation_m": 480.0,
+      "slope_deg": 1.2,
+      "aspect_deg": 90.0,
+      "distance_to_water_m": 2300.0,
+      "coarse_latitude": 17.385,
+      "coarse_longitude": 78.4867,
+      "coarse_elevation_m": 490.0
+    },
+    {
+      "panchayat_id": "201004",
+      "panchayat_name": "Aloor",
+      "block_id": "BLK_RRE_01",
+      "latitude": 17.33,
+      "longitude": 78.16,
+      "elevation_m": 510.0,
+      "slope_deg": 3.0,
+      "aspect_deg": 180.0,
+      "distance_to_water_m": 450.0,
+      "coarse_latitude": 17.385,
+      "coarse_longitude": 78.4867,
+      "coarse_elevation_m": 490.0
+    }
+  ]
+}

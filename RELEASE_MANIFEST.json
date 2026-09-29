@@ -1,0 +1,36 @@
+{
+  "release": "SIH26074 Agromet Portal v1.5",
+  "scope": "Backend completeness upgrade preserving the existing ML/forecast/advisory pipeline",
+  "verification": {
+    "compileall": "passed",
+    "pytest": "15 passed",
+    "node_inline_javascript_check": "passed",
+    "live_health_endpoint": "HTTP 200",
+    "live_portal_endpoint": "HTTP 200",
+    "isolated_platform_smoke": "passed"
+  },
+  "major_additions": [
+    "user accounts and signed sessions",
+    "PBKDF2 password hashing and password policy",
+    "password recovery token and OTP flows",
+    "TOTP MFA",
+    "RBAC users/roles/departments",
+    "persistent notifications and read receipts",
+    "0-100 deterministic risk scoring with factor contributions",
+    "defensive security telemetry and rate limiting",
+    "GIS GeoJSON endpoint",
+    "projects/milestones/inspections",
+    "analytics and financial progress",
+    "notices CMS",
+    "documents metadata store",
+    "advisory timestamps and localization",
+    "server-side pagination parameters",
+    "profile and password management"
+  ],
+  "production_boundary": [
+    "The bundled M1 artifact remains synthetic development data.",
+    "SQLite remains the pilot repository; use PostgreSQL for multi-instance production.",
+    "SMTP or an operator-controlled OTP webhook is required for real password-recovery delivery.",
+    "Approved departmental identity, monitoring, object storage and upstream data integrations remain deployment-specific."
+  ]
+}

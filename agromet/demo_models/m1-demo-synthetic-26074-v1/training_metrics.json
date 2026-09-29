@@ -1,0 +1,36 @@
+{
+  "model_version": "m1-demo-synthetic-26074-v1",
+  "backend": "lightgbm",
+  "training_rows": 405,
+  "calibration_rows": 135,
+  "holdout_rows": 180,
+  "continuous_holdout": {
+    "tmax_c": {
+      "mae": 1.1368974649233143,
+      "rmse": 1.4119646810381137,
+      "bias": 0.2777023765263334
+    },
+    "tmin_c": {
+      "mae": 0.7389624924161887,
+      "rmse": 0.9344159177352936,
+      "bias": 0.0019286526856546675
+    },
+    "relative_humidity_pct": {
+      "mae": 3.4579129328661566,
+      "rmse": 4.383189452287132,
+      "bias": 0.89953637403243
+    },
+    "wind_speed_kmh": {
+      "mae": 1.353331161585138,
+      "rmse": 1.707331727951467,
+      "bias": -0.048167682770739975
+    }
+  },
+  "rainfall_holdout_brier": {
+    "light": 0.005555555555555556,
+    "moderate": 0.0,
+    "heavy": 2.2201163599694814e-19,
+    "very_heavy": 0.0
+  },
+  "disclaimer": "Synthetic demonstration only; do not report as TGDPS skill."
+}

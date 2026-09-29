@@ -1,0 +1,5 @@
+lgd_code,elevation_m,coarse_cell_mean_elevation_m,slope_deg,aspect_deg,dist_to_water_m
+201001,530,490,2.1,140,1200
+201002,565,490,4.8,210,850
+201003,480,490,1.2,90,2300
+201004,510,490,3.0,180,450
