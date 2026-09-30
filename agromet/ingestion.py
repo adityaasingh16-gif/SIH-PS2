@@ -35,6 +35,11 @@ class PanchayatConfig:
     panchayat_id: str
     latitude: float
     longitude: float
+    panchayat_name: str | None = None
+    district: str | None = None
+    mandal: str | None = None
+    block_id: str | None = None
+    state: str = "Telangana"
     elevation_m: float | None = None
     slope_deg: float | None = None
     aspect_deg: float | None = None
@@ -382,6 +387,11 @@ def load_panchayat_registry(path: str | Path) -> dict[str, PanchayatConfig]:
                 panchayat_id=str(item["panchayat_id"]),
                 latitude=float(item["latitude"]),
                 longitude=float(item["longitude"]),
+                panchayat_name=str(item.get("panchayat_name") or item["panchayat_id"]),
+                district=str(item.get("district") or "Rangareddy"),
+                mandal=str(item.get("mandal") or "Chevella"),
+                block_id=str(item.get("block_id") or "BLK_RRE_01"),
+                state=str(item.get("state") or "Telangana"),
                 elevation_m=None if item.get("elevation_m") is None else float(item["elevation_m"]),
                 slope_deg=None if item.get("slope_deg") is None else float(item["slope_deg"]),
                 aspect_deg=None if item.get("aspect_deg") is None else float(item["aspect_deg"]),

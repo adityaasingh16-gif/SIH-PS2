@@ -13,6 +13,10 @@ class AdvisoryKind(str, Enum):
     SPRAYING_WINDOW = "spraying_window"
     UREA_TOPDRESSING = "urea_topdressing"
     RICE_BLAST = "rice_blast"
+    COTTON_BOLLWORM = "cotton_bollworm"
+    HEAVY_RAIN_DRAINAGE = "heavy_rain_drainage"
+    HEAT_STRESS = "heat_stress"
+    HIGH_WIND_WARNING = "high_wind_warning"
 
 
 class AdvisoryStatus(str, Enum):
@@ -187,6 +191,75 @@ class AdvisoryEngine:
                 )
             )
 
+        # Cotton bollworm / sucking pest risk: Sustained warm & humid conditions
+        cotton_days = [d for d in ordered if d.relative_humidity_pct >= 70.0 and 22.0 <= d.tmin_c <= 32.0]
+        if len(cotton_days) >= 2:
+            advisories.append(
+                self._advisory(
+                    panchayat_id,
+                    AdvisoryKind.COTTON_BOLLWORM,
+                    cotton_days[0].valid_date,
+                    cotton_days[-1].valid_date,
+                    "cotton_bollworm_risk",
+                    "rh_ge_70_temp_22_32_warm_humid",
+                    {
+                        "humidity_pct": cotton_days[0].relative_humidity_pct,
+                        "consecutive_days": len(cotton_days),
+                    },
+                )
+            )
+
+        # Heavy rain & waterlogging drainage alert
+        high_rain_days = [d for d in ordered if d.rain_probability_15_6mm >= 0.50]
+        if high_rain_days:
+            advisories.append(
+                self._advisory(
+                    panchayat_id,
+                    AdvisoryKind.HEAVY_RAIN_DRAINAGE,
+                    high_rain_days[0].valid_date,
+                    high_rain_days[-1].valid_date,
+                    "heavy_rain_drainage_alert",
+                    "heavy_rain_probability_ge_50pct",
+                    {
+                        "rain_probability": high_rain_days[0].rain_probability_15_6mm,
+                    },
+                )
+            )
+
+        # Extreme Heat stress alert
+        hot_days = [d for d in ordered if d.tmax_c >= 38.0]
+        if hot_days:
+            advisories.append(
+                self._advisory(
+                    panchayat_id,
+                    AdvisoryKind.HEAT_STRESS,
+                    hot_days[0].valid_date,
+                    hot_days[-1].valid_date,
+                    "heat_stress_precautions",
+                    "tmax_ge_38c",
+                    {
+                        "tmax_c": hot_days[0].tmax_c,
+                    },
+                )
+            )
+
+        # High wind speed alert
+        windy_days = [d for d in ordered if d.wind_speed_kmh >= 22.0]
+        if windy_days:
+            advisories.append(
+                self._advisory(
+                    panchayat_id,
+                    AdvisoryKind.HIGH_WIND_WARNING,
+                    windy_days[0].valid_date,
+                    windy_days[-1].valid_date,
+                    "high_wind_lodging_risk",
+                    "wind_speed_ge_22kmh",
+                    {
+                        "wind_speed_kmh": windy_days[0].wind_speed_kmh,
+                    },
+                )
+            )
+
         if et0_inputs is not None:
             et0 = calculate_et0_fao56(et0_inputs)
             advisories.append(
@@ -209,8 +282,6 @@ class AdvisoryEngine:
 
     @staticmethod
     def _aggregate_heavy_probability(forecast: Sequence[ForecastDay]) -> float:
-        # Independent daily approximation is explicit and can be replaced by a
-        # joint model once temporal dependence estimates are available.
         no_event = 1.0
         for day in forecast:
             no_event *= 1.0 - day.rain_probability_15_6mm
@@ -270,32 +341,47 @@ class TemplateLocalizer:
             "spraying_window_ready": "Spraying window is suitable: wind {wind_speed_kmh:.1f} km/h, RH {relative_humidity_pct:.0f}%, rain probability {rain_probability_next_6h:.0%}.",
             "urea_topdressing_delay": "Delay urea topdressing: probability of rain >=15.6 mm in 48 hours is {probability_rain_ge_15_6mm_48h:.0%}.",
             "rice_blast_risk": "Rice blast risk is elevated for {consecutive_days} consecutive days. Minimum RH is {minimum_relative_humidity_pct:.0f}%.",
+            "cotton_bollworm_risk": "Cotton pest/bollworm risk elevated due to warm humid weather (RH {humidity_pct:.0f}%). Inspect squares & bolls.",
+            "heavy_rain_drainage_alert": "Heavy rainfall expected ({rain_probability:.0%} chance). Ensure field drainage channels are clear to prevent waterlogging.",
+            "heat_stress_precautions": "Heat stress warning (Max Temp {tmax_c:.1f}°C). Provide light, frequent evening irrigation and mulch crops.",
+            "high_wind_lodging_risk": "High wind velocity ({wind_speed_kmh:.1f} km/h). Postpone foliar spraying and provide staking support for tall crops.",
             "et0_reference": "Reference evapotranspiration is {et0_mm_day:.2f} mm/day.",
         },
         "te": {
             "spraying_window_ready": "పిచికారీకి అనుకూల సమయం: గాలి {wind_speed_kmh:.1f} కి.మీ/గం, RH {relative_humidity_pct:.0f}%, వర్షం అవకాశం {rain_probability_next_6h:.0%}.",
             "urea_topdressing_delay": "యూరియా పై ఎరువు వేయడం ఆలస్యం చేయండి: 48 గంటల్లో 15.6 మి.మీ లేదా అంతకంటే ఎక్కువ వర్షం అవకాశం {probability_rain_ge_15_6mm_48h:.0%}.",
             "rice_blast_risk": "వరి బ్లాస్ట్ వ్యాధి ప్రమాదం ఎక్కువగా ఉంది: వరుసగా {consecutive_days} రోజులు. కనిష్ఠ RH {minimum_relative_humidity_pct:.0f}%.",
+            "cotton_bollworm_risk": "పత్తిలో పురుగుల/కాయతొలుచు పురుగు ఉధృతి అవకాశం (తేమ {humidity_pct:.0f}%). పంటను గమనించండి.",
+            "heavy_rain_drainage_alert": "భారీ వర్ష సూచన ({rain_probability:.0%} అవకాశం). పొలంలో నీరు నిల్వ ఉండకుండా మురుగు కాలువలు సిద్ధం చేసుకోండి.",
+            "heat_stress_precautions": "ఎండ తీవ్రత హెచ్చరిక (గరిష్ఠ ఉష్ణోగ్రత {tmax_c:.1f}°C). సాయంత్రం వేళల్లో తేలికపాటి నీటి తడులు ఇవ్వండి.",
+            "high_wind_lodging_risk": "ఈదురు గాలుల ప్రమాదం ({wind_speed_kmh:.1f} కి.మీ/గం). పురుగుమందుల పిచికారీని వాయిదా వేయండి.",
             "et0_reference": "సూచిక ఆవిరీభవన-ఉత్సర్జన {et0_mm_day:.2f} మి.మీ/రోజు.",
         },
         "hi": {
             "spraying_window_ready": "छिड़काव के लिए समय उपयुक्त है: हवा {wind_speed_kmh:.1f} किमी/घंटा, RH {relative_humidity_pct:.0f}%, वर्षा की संभावना {rain_probability_next_6h:.0%}।",
             "urea_topdressing_delay": "यूरिया की टॉप ड्रेसिंग स्थगित करें: 48 घंटे में 15.6 मिमी या अधिक वर्षा की संभावना {probability_rain_ge_15_6mm_48h:.0%} है।",
             "rice_blast_risk": "धान ब्लास्ट रोग का जोखिम बढ़ा हुआ है: लगातार {consecutive_days} दिन। न्यूनतम RH {minimum_relative_humidity_pct:.0f}% है।",
+            "cotton_bollworm_risk": "कपास में कीट/गुलाबी सुंडी का प्रकोप संभव (नमी {humidity_pct:.0f}%)। खेतों का नियमित निरीक्षण करें।",
+            "heavy_rain_drainage_alert": "भारी वर्षा की संभावना ({rain_probability:.0%})। जलभराव रोकने के लिए जल निकासी नालियां साफ रखें।",
+            "heat_stress_precautions": "तापमान वृद्धि/लू की चेतावनी (अधिकतम {tmax_c:.1f}°C)। शाम के समय हल्की सिंचाई करें।",
+            "high_wind_lodging_risk": "तेज हवा का खतरा ({wind_speed_kmh:.1f} किमी/घंटा)। छिड़काव स्थगित रखें एवं सहारा प्रदान करें।",
             "et0_reference": "संदर्भ वाष्पोत्सर्जन {et0_mm_day:.2f} मिमी/दिन है।",
         },
     }
 
     def render(self, advisory: Advisory, language: Literal["en", "te", "hi"]) -> LocalizedAdvisory:
-        template = self._TEMPLATES[language].get(advisory.message_key)
+        template = self._TEMPLATES.get(language, self._TEMPLATES["en"]).get(advisory.message_key)
         if template is None:
-            template = self._TEMPLATES["en"][advisory.message_key]
+            template = self._TEMPLATES["en"].get(advisory.message_key, "Advisory: {rule}")
         numeric_metrics = {
             key: value
             for key, value in advisory.trigger_metrics.items()
             if isinstance(value, (int, float))
         }
-        text = template.format(**numeric_metrics)
+        try:
+            text = template.format(**numeric_metrics)
+        except Exception:
+            text = template
         return LocalizedAdvisory(
             advisory_id=advisory.advisory_id,
             language=language,
