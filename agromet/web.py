@@ -269,6 +269,30 @@ button { cursor: pointer; }
   .header .wrap { flex-wrap: wrap; }
   .brand h1 { font-size: 16px; }
 }
+/* ============ Accent colour themes (persisted via localStorage) ============ */
+.govbar .swatches { display: inline-flex; gap: 4px; align-items: center; margin-left: 6px; }
+.swatch { width: 20px; height: 20px; min-height: 20px; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); padding: 0; cursor: pointer; }
+.swatch[aria-pressed="true"] { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.4); }
+[data-accent="orange"] { --navy: #7c2d12; --navy-light: #c2410c; --navy-dark: #431407; --blue: #c2410c; --blue-light: #fdeee3; --focus: #c2410c; }
+[data-accent="orange"] .nav { background: #431407; }
+[data-accent="orange"] .loc-bar { background: linear-gradient(135deg, #431407 0%, #7c2d12 100%); }
+[data-accent="orange"] .footer { border-top-color: #c2410c; }
+[data-accent="orange"] .emblem { background: linear-gradient(135deg, #c2410c 0%, #7c2d12 100%); }
+[data-theme="dark"][data-accent="orange"] { --navy: #e8823c; --navy-light: #f0955a; --navy-dark: #241107; --blue: #f0955a; --blue-light: #2a1a10; }
+[data-accent="green"] { --navy: #0e3b2e; --navy-light: #166648; --navy-dark: #082a21; --blue: #0f766e; --blue-light: #e6f4f0; --focus: #0f766e; }
+[data-accent="green"] .nav { background: #082a21; }
+[data-accent="green"] .loc-bar { background: linear-gradient(135deg, #082a21 0%, #0e3b2e 100%); }
+[data-accent="green"] .footer { border-top-color: #0f766e; }
+[data-accent="green"] .emblem { background: linear-gradient(135deg, #0f766e 0%, #0e3b2e 100%); }
+[data-theme="dark"][data-accent="green"] { --navy: #2f9e76; --navy-light: #3ab882; --navy-dark: #07231c; --blue: #5ec8a5; --blue-light: #14291f; }
+/* ============ Scroll reveals + reduced motion ============ */
+.reveal { opacity: 0; transform: translateY(8px); transition: opacity .35s ease, transform .35s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  html { scroll-behavior: auto; }
+}
+@media (max-width: 720px) { #loginGrid { grid-template-columns: 1fr !important; } }
 </style>
 </head>
 <body>
@@ -286,6 +310,11 @@ button { cursor: pointer; }
         <option value="hi">हिन्दी (Hindi)</option>
       </select>
       <button id="themeBtn" type="button" aria-label="Toggle dark mode">🌙 Theme</button>
+      <span class="swatches" role="group" aria-label="Colour theme">
+        <button class="swatch" data-accent="blue" style="background:#2563eb" aria-label="Blue theme" aria-pressed="true" type="button"></button>
+        <button class="swatch" data-accent="orange" style="background:#c2410c" aria-label="Orange theme" aria-pressed="false" type="button"></button>
+        <button class="swatch" data-accent="green" style="background:#0f766e" aria-label="Green theme" aria-pressed="false" type="button"></button>
+      </span>
     </div>
   </div>
 </div>
@@ -312,6 +341,7 @@ button { cursor: pointer; }
 <nav class="nav" aria-label="Main Navigation">
   <div class="wrap">
     <div class="nav-links" id="navBar">
+      <button class="nav-btn" id="navLoginBtn" data-view="login" type="button">🔑 Sign In</button>
       <button class="nav-btn active" data-view="farmer" type="button">🌾 Farmer Dashboard (Citizen Services)</button>
       <button class="nav-btn" data-view="weather" type="button">🌤 Weather &amp; Forecast</button>
       <button class="nav-btn" data-view="crop" type="button">🌱 Crop Intelligence</button>
@@ -383,6 +413,44 @@ button { cursor: pointer; }
       <span class="wf-arr">➔</span>
       <div class="wf-step"><span class="wf-dot">8</span><span>Audit Logging</span></div>
     </div>
+
+    <!-- VIEW 0: Sign In (landing page) -->
+    <section id="view-login" class="view">
+      <div style="max-width:920px;margin:0 auto">
+        <div class="card" style="overflow:hidden">
+          <div class="card-b" id="loginGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0">
+            <div style="background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 60%,var(--navy-light) 100%);color:#fff;padding:36px 30px">
+              <div style="font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--saffron);margin-bottom:10px">GOVERNMENT OF TELANGANA</div>
+              <h2 style="font-size:26px;margin-bottom:10px">Agromet Decision Support Portal</h2>
+              <p style="color:rgba(255,255,255,.85);font-size:14px;margin-bottom:18px">Terrain-aware forecasts, crop intelligence, early warnings and audited KVK scientist review for every Panchayat.</p>
+              <ul style="margin:0;padding-left:18px;font-size:13px;line-height:2;color:rgba(255,255,255,.9)">
+                <li>5-day P10/P50/P90 quantile forecasts</li>
+                <li>Crop-specific risk advisories</li>
+                <li>Early warnings &amp; GIS monitoring</li>
+                <li>Audited scientist review workflow</li>
+              </ul>
+            </div>
+            <div style="padding:30px">
+              <h3 style="font-size:18px;margin-bottom:4px">Sign in</h3>
+              <p class="small muted" style="margin-bottom:16px">Use your department account, a demo login, or continue as guest.</p>
+              <form id="formLoginView">
+                <div class="field"><label for="logEmailV">Email / Username *</label><input id="logEmailV" required type="email" placeholder="e.g. scientist.kvk@agromet.gov.in" autocomplete="username"></div>
+                <div class="field"><label for="logPassV">Password *</label><div style="display:flex;gap:8px"><input id="logPassV" required type="password" placeholder="Enter password" autocomplete="current-password" style="flex:1"><button class="btn secondary sm" id="togglePassV" type="button" aria-label="Show password">Show</button></div></div>
+                <button class="btn" type="submit" style="width:100%;margin-top:6px">Sign In</button>
+              </form>
+              <div class="small muted" style="margin:14px 0 8px">1-click demo access for evaluators:</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+                <button type="button" class="btn secondary sm demo-login-v" data-user="farmer@agromet.gov.in">🌾 Farmer</button>
+                <button type="button" class="btn secondary sm demo-login-v" data-user="scientist.kvk@agromet.gov.in">🔬 Scientist</button>
+                <button type="button" class="btn secondary sm demo-login-v" data-user="officer.field@agromet.gov.in">📋 Officer</button>
+                <button type="button" class="btn secondary sm demo-login-v" data-user="admin@agromet.gov.in">⚙ Admin</button>
+              </div>
+              <button class="btn secondary" id="guestBtn" type="button" style="width:100%">Continue as Guest</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- VIEW 1: Farmer Dashboard (Mobile First) -->
     <section id="view-farmer" class="view active">
@@ -570,7 +638,7 @@ button { cursor: pointer; }
     <!-- VIEW 9: Defensive Security (IDS) Monitoring -->
     <section id="view-security" class="view">
       <div class="card">
-        <div class="card-h"><h2>🛡 Defensive Security &amp; IDS Monitoring Centre</h2><span class="badge green">Defensive Telemetry Active</span></div>
+        <div class="card-h"><h2>🛡 Defensive Security &amp; IDS Monitoring Centre</h2><span class="badge grey" id="secBadge">Checking telemetry…</span></div>
         <div class="card-b">
           <div class="grid g4" style="margin-bottom:var(--s5)">
             <div class="kpi"><div class="kpi-lbl">Total Requests</div><div class="kpi-val" id="secReqs">0</div><div class="kpi-hint">Monitored traffic</div></div>
@@ -855,6 +923,7 @@ function toast(title, msg, type) {
   var b = $('toastBox'); if (!b) return;
   var d = document.createElement('div');
   d.className = 'toast ' + (type || 'info');
+  d.setAttribute('role', 'status');
   d.innerHTML = '<strong>' + title + '</strong><div>' + msg + '</div>';
   b.appendChild(d);
   setTimeout(function() { d.remove(); }, 3500);
@@ -879,9 +948,16 @@ function api(path, opts) {
 }
 
 /* ================= View Navigation ================= */
+var LOCKED_VIEWS = { kvk: 1, audit: 1, admin: 1, security: 1 };
 function switchView(viewName) {
+  if (LOCKED_VIEWS[viewName] && !state.user) {
+    toast('Sign In Required', 'Please sign in to access the ' + viewName + ' workspace.', 'warning');
+    viewName = 'login';
+  }
   $all('.nav-btn').forEach(function(b) {
-    b.classList.toggle('active', b.dataset.view === viewName);
+    var on = b.dataset.view === viewName;
+    b.classList.toggle('active', on);
+    if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
   });
   $all('.view').forEach(function(v) {
     v.classList.toggle('active', v.id === 'view-' + viewName);
@@ -894,6 +970,8 @@ function switchView(viewName) {
   if (viewName === 'admin') loadHealth();
   if (viewName === 'grievance') loadGrievances();
   if (viewName === 'gis') renderGisMap();
+  try { if (('' + location.hash).slice(1) !== viewName) location.hash = viewName; } catch(e){}
+  revealScan();
 }
 
 $all('[data-view]').forEach(function(b) {
@@ -1009,15 +1087,30 @@ $('gpsBtn').addEventListener('click', function() {
   });
 });
 
+function reducedMotion() { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+function countUp(el, to, suffix, dec) {
+  if (!el) return;
+  to = Number(to) || 0; dec = dec || 0; suffix = suffix || '';
+  if (reducedMotion()) { el.textContent = to.toFixed(dec) + suffix; return; }
+  var t0 = null, dur = 700;
+  function fr(ts) {
+    if (!t0) t0 = ts;
+    var p = Math.min(1, (ts - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = (to * e).toFixed(dec) + suffix;
+    if (p < 1) requestAnimationFrame(fr);
+  }
+  requestAnimationFrame(fr);
+}
+
 /* ================= Weather & Forecast Operations ================= */
 function renderForecastData(f) {
   state.forecast = f;
   if (!f.days || !f.days.length) return;
   var d1 = f.days[0];
-  $('kpiTmax').textContent = d1.tmax_c.p50 + '°C';
-  $('kpiRain').textContent = d1.rain_mm + ' mm';
-  $('kpiHumidity').textContent = Math.round(d1.relative_humidity_pct.p50) + '%';
-  $('kpiEt0').textContent = (d1.et0_mm_day != null ? d1.et0_mm_day.toFixed(1) : '3.8') + ' mm';
+  countUp($('kpiTmax'), d1.tmax_c.p50, '°C', 1);
+  countUp($('kpiRain'), d1.rain_mm, ' mm', 1);
+  countUp($('kpiHumidity'), d1.relative_humidity_pct.p50, '%', 0);
+  countUp($('kpiEt0'), d1.et0_mm_day != null ? d1.et0_mm_day : 0, ' mm', 1);
 
   // Farmer weather strip
   var strip = $('farmerWeatherStrip');
@@ -1083,11 +1176,20 @@ $('btnCalculateCrop').addEventListener('click', function() {
   api('/api/v1/crops/' + crop + '/advisory/' + pid).then(function(res) {
     var box = $('cropAdviceResult');
     var badgeClass = res.risk_level === 'HIGH' ? 'red' : res.risk_level === 'MODERATE' ? 'amber' : 'green';
-    box.innerHTML = '<div class="card" style="margin-top:var(--s4)"><div class="card-h"><h3>' + res.crop_name + ' &bull; Risk Assessment</h3><span class="badge ' + badgeClass + '">' + res.risk_level + ' RISK</span></div><div class="card-b">' +
-      '<div class="grid g3" style="margin-bottom:14px"><div><strong>Water Need:</strong> ' + res.crop_details.water_requirement_mm + ' mm</div><div><strong>Season:</strong> ' + res.crop_details.season + '</div><div><strong>Duration:</strong> ' + res.crop_details.duration_days + ' Days</div></div>' +
-      '<h4>Agronomic Recommendations:</h4><ul style="margin:8px 0 0 20px;line-height:1.7">' +
-      res.recommendations.map(function(r) { return '<li>' + r + '</li>'; }).join('') +
-      '</ul></div></div>';
+      var det = res.crop_details || {};
+      var lang = state.lang || 'en';
+      function recText(r) {
+        if (typeof r === 'string') return r;
+        var t = (lang === 'te' && r.action_te) ? r.action_te : (lang === 'hi' && r.action_hi) ? r.action_hi : (r.action_en || r.action || '');
+        var urg = (r.urgency || 'Normal');
+        var ub = (urg.toLowerCase() === 'high' || urg.toLowerCase() === 'urgent') ? 'red' : 'blue';
+        return '<strong>' + (r.topic || 'Advisory') + ' <span class="badge ' + ub + '">' + urg + '</span></strong><br>' + t;
+      }
+      box.innerHTML = '<div class="card" style="margin-top:var(--s4)"><div class="card-h"><h3>' + res.crop_name + ' &bull; Risk Assessment</h3><span class="badge ' + badgeClass + '">' + res.risk_level + ' RISK</span></div><div class="card-b">' +
+        '<div class="grid g3" style="margin-bottom:14px"><div><strong>Water Need:</strong> ' + (det.water_requirement_mm || '—') + ' mm</div><div><strong>Season:</strong> ' + (det.season || '—') + '</div><div><strong>Duration:</strong> ' + (det.duration_days || '—') + ' Days</div></div>' +
+        '<h4>Agronomic Recommendations:</h4><ul style="margin:8px 0 0 20px;line-height:1.7">' +
+        (res.recommendations || []).map(function(r) { return '<li style="margin-bottom:8px">' + recText(r) + '</li>'; }).join('') +
+        '</ul></div></div>';
   }).catch(function(err) {
     toast('Crop Advisory Error', err.message, 'error');
   });
@@ -1210,7 +1312,7 @@ function loadGrievances() {
     }
     box.innerHTML = list.slice(0, 5).map(function(g) {
       return '<div style="padding:10px;border-bottom:1px solid var(--line-light);display:flex;justify-content:space-between;align-items:center">' +
-        '<div><strong>' + g.grievance_id + '</strong> - ' + g.subject + '<div class="small muted">' + g.category + ' &bull; ' + g.created_at.slice(0,10) + '</div></div>' +
+        '<div><strong>' + g.grievance_id + '</strong> - ' + g.subject + '<div class="small muted">' + g.category + ' &bull; ' + (g.created_at||'').slice(0,10) + '</div></div>' +
         '<span class="badge blue">' + g.status.toUpperCase() + '</span>' +
         '</div>';
     }).join('');
@@ -1241,6 +1343,7 @@ $('formGrievance').addEventListener('submit', function(e) {
 /* ================= Notices ================= */
 function loadNotices() {
   api('/api/v1/notices').then(function(list) {
+    list = (list && list.items) || list || [];
     var box = $('noticesListBox');
     if (!list || !list.length) {
       box.innerHTML = '<p class="muted">No official notices published.</p>';
@@ -1248,12 +1351,16 @@ function loadNotices() {
     }
     box.innerHTML = list.map(function(n) {
       var badgeClass = n.priority === 'urgent' ? 'red' : n.priority === 'high' ? 'amber' : 'blue';
-      return '<div class="card" style="margin-bottom:var(--s4)"><div class="card-h"><h3>' + n.title + '</h3><span class="badge ' + badgeClass + '">' + n.priority.toUpperCase() + '</span></div><div class="card-b">' +
-        '<p style="font-size:14px;line-height:1.6">' + n.content + '</p>' +
-        '<div class="small muted" style="margin-top:10px">Published by ' + n.department + ' on ' + (n.published_at||'').slice(0,10) + '</div>' +
+      var pr = n.priority || 'normal';
+      var badgeClass = pr === 'urgent' ? 'red' : pr === 'high' ? 'amber' : 'blue';
+      return '<div class="card" style="margin-bottom:var(--s4)"><div class="card-h"><h3>' + n.title + '</h3><span class="badge ' + badgeClass + '">' + pr.toUpperCase() + '</span></div><div class="card-b">' +
+        '<p style="font-size:14px;line-height:1.6">' + (n.body || n.content || '') + '</p>' +
+        '<div class="small muted" style="margin-top:10px">Published by ' + (n.created_by || n.department || 'Department') + ' on ' + (n.published_at||'').slice(0,10) + (n.category ? ' &bull; ' + n.category : '') + '</div>' +
         '</div></div>';
     }).join('');
-  }).catch(function() {});
+  }).catch(function() {
+    $('noticesListBox').innerHTML = '<div class="status error">Could not load notices. <button type="button" class="btn secondary sm" onclick="loadNotices()">Try Again</button></div>';
+  });
 }
 $('btnRefreshNotices').addEventListener('click', loadNotices);
 
@@ -1264,6 +1371,7 @@ function loadSecurity() {
     $('secBlocked').textContent = data.summary.blocked || 0;
     $('secRate').textContent = data.summary.rate_limited || 0;
     $('secEvents').textContent = data.summary.total_events || 0;
+    var sb = $('secBadge'); if (sb) { sb.textContent = 'Defensive Telemetry Active'; sb.className = 'badge green'; }
 
     var tbody = $('secEventsTable');
     if (!data.recent_events || !data.recent_events.length) {
@@ -1273,22 +1381,28 @@ function loadSecurity() {
     tbody.innerHTML = data.recent_events.map(function(ev) {
       return '<tr><td class="small">' + ev.timestamp.slice(11,19) + '</td><td>' + ev.ip_address + '</td><td><strong>' + ev.method + '</strong></td><td>' + ev.path + '</td><td>' + ev.status_code + '</td><td>' + ev.category + '</td><td><span class="badge ' + (ev.severity==='critical'?'red':ev.severity==='warning'?'amber':'blue') + '">' + ev.severity + '</span></td></tr>';
     }).join('');
-  }).catch(function() {});
+  }).catch(function() {
+    var b = $('secBadge'); if (b) { b.textContent = 'Telemetry Unavailable'; b.className = 'badge grey'; }
+    var tb = $('secEventsTable');
+    if (tb) tb.innerHTML = '<tr><td colspan="7" style="text-align:center">Security telemetry endpoint is not connected on the server. No events are fabricated. <button type="button" class="btn secondary sm" onclick="loadSecurity()">Try Again</button></td></tr>';
+  });
 }
 
 /* ================= Governance Audit Logs ================= */
 function loadAuditLogs() {
   api('/api/v1/audit-logs').then(function(data) {
     var tbody = $('auditTableBody');
-    var items = data.items || [];
+    var items = (data && data.items) || data || [];
     if (!items.length) {
       tbody.innerHTML = '<tr><td colspan="6" class="muted">No governance audit entries found.</td></tr>';
       return;
     }
     tbody.innerHTML = items.map(function(log) {
-      return '<tr><td class="small">' + log.timestamp.slice(0,19) + '</td><td><strong>' + log.user_id + '</strong> (' + log.role + ')</td><td><span class="badge blue">' + log.action + '</span></td><td class="mono">' + log.resource + '</td><td>' + log.status + '</td><td class="small">' + (log.details||'--') + '</td></tr>';
+      return '<tr><td class="small">' + (log.created_at || log.timestamp || '').slice(0,19).replace('T',' ') + '</td><td><strong>' + (log.user_email || log.user_id || 'System') + '</strong> (' + (log.role || 'system') + ')</td><td><span class="badge blue">' + log.action + '</span></td><td class="mono">' + log.resource + '</td><td>' + (log.result || log.status || '') + '</td><td class="small">' + (log.details||'--') + '</td></tr>';
     }).join('');
-  }).catch(function() {});
+  }).catch(function() {
+    $('auditTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center">Could not load audit logs. <button type="button" class="btn secondary sm" onclick="loadAuditLogs()">Try Again</button></td></tr>';
+  });
 }
 $('btnRefreshAudit').addEventListener('click', loadAuditLogs);
 
@@ -1301,7 +1415,9 @@ function loadHealth() {
       '<div style="margin-top:4px"><strong>Weather Provider:</strong> ' + res.weather_provider + '</div>' +
       '<div style="margin-top:4px"><strong>Timestamp:</strong> ' + res.timestamp + '</div>' +
       '</div>';
-  }).catch(function() {});
+  }).catch(function() {
+    $('healthDetailsBox').innerHTML = '<div class="status warn">Health endpoint is unavailable on the server right now. The component matrix above shows the last known state.</div>';
+  });
 }
 $('btnRefreshHealth').addEventListener('click', loadHealth);
 
@@ -1339,29 +1455,65 @@ $all('.demo-login').forEach(function(b) {
   });
 });
 
-$('formLogin').addEventListener('submit', function(e) {
-  e.preventDefault();
-  var email = $('logEmail').value.trim();
-  var pass = $('logPass').value.trim();
-  api('/api/v1/auth/login', { method: 'POST', body: { email: email, password: pass } }).then(function(res) {
+function doLogin(email, pass) {
+  return api('/api/v1/auth/login', { method: 'POST', body: { email: email, password: pass } }).then(function(res) {
     state.user = {
-      name: res.user.display_name || res.user.email,
-      roles: res.user.roles || ['citizen'],
+      name: (res.user && (res.user.display_name || res.user.email)) || email,
+      roles: (res.user && res.user.roles) || ['citizen'],
       token: res.access_token
     };
     try { sessionStorage.setItem('agromet_session', JSON.stringify(state.user)); } catch(e){}
     onUserLoggedIn();
-    $('authModal').style.display = 'none';
     toast('Signed In', 'Welcome back, ' + state.user.name + '!', 'success');
-  }).catch(function(err) {
+    switchView('farmer');
+  });
+}
+function doRegister(payload) {
+  return api('/api/v1/auth/register', { method: 'POST', body: payload }).then(function(res) {
+    state.user = {
+      name: (res.user && (res.user.display_name || res.user.email)) || payload.email,
+      roles: (res.user && res.user.roles) || ['citizen'],
+      token: res.access_token
+    };
+    try { sessionStorage.setItem('agromet_session', JSON.stringify(state.user)); } catch(e){}
+    onUserLoggedIn();
+    toast('Account Created', 'Welcome to Agromet Portal, ' + state.user.name + '!', 'success');
+    switchView('farmer');
+  });
+}
+$('formLogin').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var email = $('logEmail').value.trim();
+  var pass = $('logPass').value.trim();
+  doLogin(email, pass).then(function() { $('authModal').style.display = 'none'; }).catch(function(err) {
     toast('Login Failed', err.message, 'error');
   });
 });
+$('formLoginView').addEventListener('submit', function(e) {
+  e.preventDefault();
+  doLogin($('logEmailV').value.trim(), $('logPassV').value.trim()).catch(function(err) {
+    toast('Login Failed', err.message, 'error');
+  });
+});
+$('togglePassV').addEventListener('click', function() {
+  var k = $('logPassV'); var show = k.type === 'password';
+  k.type = show ? 'text' : 'password';
+  this.textContent = show ? 'Hide' : 'Show';
+});
+$all('.demo-login-v').forEach(function(b) {
+  b.addEventListener('click', function() {
+    doLogin(this.dataset.user, 'Agromet@2026').catch(function(err) {
+      toast('Login Failed', err.message, 'error');
+    });
+  });
+});
+$('guestBtn').addEventListener('click', function() { switchView('farmer'); });
 
 $('formRegister').addEventListener('submit', function(e) {
   e.preventDefault();
   var p1 = $('regPass').value, p2 = $('regPassConfirm').value;
   if (p1 !== p2) { toast('Error', 'Passwords do not match.', 'error'); return; }
+  if (p1.length < 8) { toast('Error', 'Password must be at least 8 characters.', 'error'); return; }
   var payload = {
     full_name: $('regName').value.trim(),
     email: $('regEmail').value.trim(),
@@ -1369,17 +1521,7 @@ $('formRegister').addEventListener('submit', function(e) {
     password: p1,
     role: $('regRole').value
   };
-  api('/api/v1/auth/register', { method: 'POST', body: payload }).then(function(res) {
-    state.user = {
-      name: res.user.display_name || res.user.email,
-      roles: res.user.roles || ['citizen'],
-      token: res.access_token
-    };
-    try { sessionStorage.setItem('agromet_session', JSON.stringify(state.user)); } catch(e){}
-    onUserLoggedIn();
-    $('authModal').style.display = 'none';
-    toast('Account Created', 'Welcome to Agromet Portal, ' + state.user.name + '!', 'success');
-  }).catch(function(err) {
+  doRegister(payload).then(function() { $('authModal').style.display = 'none'; }).catch(function(err) {
     toast('Registration Failed', err.message, 'error');
   });
 });
@@ -1389,6 +1531,7 @@ function onUserLoggedIn() {
   $('roleBadge').textContent = (state.user.roles[0] || 'citizen').toUpperCase();
   $('authBtn').style.display = 'none';
   $('logoutBtn').style.display = 'inline-flex';
+  if ($('navLoginBtn')) $('navLoginBtn').style.display = 'none';
 }
 
 $('logoutBtn').addEventListener('click', function() {
@@ -1397,7 +1540,9 @@ $('logoutBtn').addEventListener('click', function() {
   $('roleBadge').textContent = 'Public / Farmer';
   $('authBtn').style.display = 'inline-flex';
   $('logoutBtn').style.display = 'none';
+  if ($('navLoginBtn')) $('navLoginBtn').style.display = '';
   toast('Signed Out', 'You have been signed out.', 'info');
+  switchView('login');
 });
 
 /* ================= Theme & I18N ================= */
@@ -1406,6 +1551,33 @@ $('themeBtn').addEventListener('click', function() {
   document.documentElement.setAttribute('data-theme', state.theme);
   try { localStorage.setItem('agromet_theme', state.theme); } catch(e){}
 });
+function paintSwatches() {
+  var cur = document.documentElement.getAttribute('data-accent') || 'blue';
+  $all('.swatch').forEach(function(s) { s.setAttribute('aria-pressed', s.dataset.accent === cur ? 'true' : 'false'); });
+}
+$all('.swatch').forEach(function(s) {
+  s.addEventListener('click', function() {
+    document.documentElement.setAttribute('data-accent', s.dataset.accent);
+    try { localStorage.setItem('agromet_accent', s.dataset.accent); } catch(e){}
+    paintSwatches();
+  });
+});
+function revealScan() {
+  var els = $all('.farmer-hero, .card, .kpi');
+  if (reducedMotion() || !('IntersectionObserver' in window)) return;
+  if (!window.__revealIO) {
+    window.__revealIO = new IntersectionObserver(function(es) {
+      es.forEach(function(en) { if (en.isIntersecting) { en.target.classList.add('in'); window.__revealIO.unobserve(en.target); } });
+    }, { threshold: 0.06 });
+  }
+  els.forEach(function(el) {
+    if (!el.classList.contains('reveal') && !el.classList.contains('in')) {
+      el.classList.add('reveal');
+      window.__revealIO.observe(el);
+    }
+  });
+  setTimeout(function() { els.forEach(function(el) { el.classList.add('in'); }); }, 4000);
+}
 
 $('langSelect').addEventListener('change', function() {
   state.lang = this.value;
@@ -1426,11 +1598,20 @@ $('langSelect').addEventListener('change', function() {
   try {
     var savedTheme = localStorage.getItem('agromet_theme');
     if (savedTheme) { state.theme = savedTheme; document.documentElement.setAttribute('data-theme', savedTheme); }
+    var savedAccent = localStorage.getItem('agromet_accent');
+    if (savedAccent) { document.documentElement.setAttribute('data-accent', savedAccent); }
+    paintSwatches();
     var savedUser = sessionStorage.getItem('agromet_session');
     if (savedUser) { state.user = JSON.parse(savedUser); onUserLoggedIn(); }
   } catch(e){}
+  var validViews = ['farmer','weather','crop','warnings','gis','kvk','grievance','notices','security','audit','models','admin','login'];
+  var start = ('' + (location.hash || '')).replace('#','');
+  if (validViews.indexOf(start) < 0) start = state.user ? 'farmer' : 'login';
+  if (start !== 'login' && LOCKED_VIEWS[start] && !state.user) start = 'login';
+  switchView(start);
   loadPanchayats();
   loadWarnings();
+  revealScan();
 })();
 </script>
 </body>
