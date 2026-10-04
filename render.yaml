@@ -21,6 +21,8 @@ services:
         value: "AdminDemo@2026!"
       - key: AGROMET_PUBLIC_BASE_URL
         value: "https://sih-ps2-agromet.onrender.com"
+      - key: AGROMET_DEMO_MODE
+        value: "true"
       - key: AGROMET_FORECAST_PROVIDER
         value: "open_meteo"
       - key: AGROMET_OPEN_METEO_URL
