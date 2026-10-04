@@ -13,6 +13,8 @@ services:
         value: "/app/config/panchayats.mock.json"
       - key: AGROMET_MODEL_ARTIFACT
         value: "/app/agromet/models/m1-telangana-mock-v1/model_bundle.joblib"
+      - key: AGROMET_FORECAST_FILE
+        value: "/app/config/demo_forecasts.json"
       - key: AGROMET_SESSION_SECRET
         generateValue: true
       - key: AGROMET_BOOTSTRAP_ADMIN_EMAIL
