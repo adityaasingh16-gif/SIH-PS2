@@ -440,10 +440,10 @@ button { cursor: pointer; }
               </form>
               <div class="small muted" style="margin:14px 0 8px">1-click demo access for evaluators:</div>
               <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-                <button type="button" class="btn secondary sm demo-login-v" data-user="farmer@agromet.gov.in">🌾 Farmer</button>
-                <button type="button" class="btn secondary sm demo-login-v" data-user="scientist.kvk@agromet.gov.in">🔬 Scientist</button>
-                <button type="button" class="btn secondary sm demo-login-v" data-user="officer.field@agromet.gov.in">📋 Officer</button>
-                <button type="button" class="btn secondary sm demo-login-v" data-user="admin@agromet.gov.in">⚙ Admin</button>
+                <button type="button" class="btn secondary sm demo-login-v" data-user="citizen@agromet.demo">🌾 Farmer</button>
+                <button type="button" class="btn secondary sm demo-login-v" data-user="kvk@agromet.demo">🔬 Scientist</button>
+                <button type="button" class="btn secondary sm demo-login-v" data-user="officer@agromet.demo">📋 Officer</button>
+                <button type="button" class="btn secondary sm demo-login-v" data-user="admin@agromet.demo">⚙ Admin</button>
               </div>
               <button class="btn secondary" id="guestBtn" type="button" style="width:100%">Continue as Guest</button>
             </div>
@@ -800,11 +800,11 @@ button { cursor: pointer; }
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line-light)">
           <div class="small muted" style="margin-bottom:6px">Quick 1-Click Demo Logins for Evaluators:</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button type="button" class="btn secondary sm demo-login" data-user="farmer@agromet.gov.in">🌾 Farmer</button>
-            <button type="button" class="btn secondary sm demo-login" data-user="scientist.kvk@agromet.gov.in">🔬 KVK Scientist</button>
-            <button type="button" class="btn secondary sm demo-login" data-user="officer.field@agromet.gov.in">📋 Field Officer</button>
-            <button type="button" class="btn secondary sm demo-login" data-user="district.officer@agromet.gov.in">🏛 District Officer</button>
-            <button type="button" class="btn secondary sm demo-login" data-user="admin@agromet.gov.in">⚙ Admin</button>
+            <button type="button" class="btn secondary sm demo-login" data-user="citizen@agromet.demo">🌾 Farmer</button>
+            <button type="button" class="btn secondary sm demo-login" data-user="kvk@agromet.demo">🔬 KVK Scientist</button>
+            <button type="button" class="btn secondary sm demo-login" data-user="officer@agromet.demo">📋 Field Officer</button>
+            <button type="button" class="btn secondary sm demo-login" data-user="officer@agromet.demo">🏛 District Officer</button>
+            <button type="button" class="btn secondary sm demo-login" data-user="admin@agromet.demo">⚙ Admin</button>
           </div>
         </div>
       </form>
@@ -1449,8 +1449,14 @@ $('tabRegister').addEventListener('click', function() {
 // Quick 1-click Demo Logins for Evaluators
 $all('.demo-login').forEach(function(b) {
   b.addEventListener('click', function() {
+    var demoPasswords = {
+      'admin@agromet.demo': 'AdminDemo@2026!',
+      'officer@agromet.demo': 'OfficerDemo@2026!',
+      'kvk@agromet.demo': 'KvkScientist@2026!',
+      'citizen@agromet.demo': 'CitizenDemo@2026!'
+    };
     $('logEmail').value = this.dataset.user;
-    $('logPass').value = 'Agromet@2026';
+    $('logPass').value = demoPasswords[this.dataset.user] || '';
     $('formLogin').dispatchEvent(new Event('submit'));
   });
 });
@@ -1502,7 +1508,14 @@ $('togglePassV').addEventListener('click', function() {
 });
 $all('.demo-login-v').forEach(function(b) {
   b.addEventListener('click', function() {
-    doLogin(this.dataset.user, 'Agromet@2026').catch(function(err) {
+    var demoPasswords = {
+      'admin@agromet.demo': 'AdminDemo@2026!',
+      'officer@agromet.demo': 'OfficerDemo@2026!',
+      'kvk@agromet.demo': 'KvkScientist@2026!',
+      'citizen@agromet.demo': 'CitizenDemo@2026!'
+    };
+    var email = this.dataset.user;
+    doLogin(email, demoPasswords[email] || '').catch(function(err) {
       toast('Login Failed', err.message, 'error');
     });
   });
